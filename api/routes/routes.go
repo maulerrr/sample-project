@@ -18,8 +18,8 @@ func InitRoutes(app *gin.Engine) {
 
 	postRouter := router.Group("/post")
 	postRouter.GET("/", middlewares.AuthMiddleware(), ctrl.GetAllPosts)
+	postRouter.POST("/", middlewares.AuthMiddleware(), ctrl.AddPost)
 	postRouter.GET("/:id", middlewares.AuthMiddleware(), ctrl.GetPostByID)
-	postRouter.POST("/add", middlewares.AuthMiddleware(), ctrl.AddPost)
-	postRouter.DELETE("/delete/:id", middlewares.AuthMiddleware(), ctrl.DeletePostByID)
-	postRouter.PUT("/update/:id", middlewares.AuthMiddleware(), ctrl.UpdatePostByID)
+	postRouter.DELETE("/:id", middlewares.AuthMiddleware(), ctrl.DeletePostByID)
+	//postRouter.PUT("/update/:id", middlewares.AuthMiddleware(), ctrl.UpdatePostByID)
 }
