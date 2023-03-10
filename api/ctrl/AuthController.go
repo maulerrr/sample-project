@@ -67,9 +67,10 @@ func SignUp(context *gin.Context) {
 	}
 
 	newUser := models.User{
-		Password: password,
-		Email:    json.Email,
-		Username: json.Username,
+		Password:  password,
+		Email:     json.Email,
+		Username:  json.Username,
+		CreatedAt: time.Now(),
 	}
 
 	found := models.User{}

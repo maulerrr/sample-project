@@ -28,7 +28,7 @@ func main() {
 func port() string {
 	port := os.Getenv("PORT")
 	if port != "4005" {
-		return ":5050"
+		return ":3001"
 	}
 	return ":" + port
 }
