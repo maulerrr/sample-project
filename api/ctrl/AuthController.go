@@ -77,7 +77,7 @@ func SignUp(context *gin.Context) {
 	query := models.User{Email: json.Email}
 	err = db.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "User already exists", 400)
+		utils.SendMessageWithStatus(context, "User already exists", 404)
 		return
 	}
 

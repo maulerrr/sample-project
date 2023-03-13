@@ -14,8 +14,6 @@ func ConnectDB() {
 	var err error
 	dsn := os.Getenv("DATABASE_DSN")
 
-	log.Println(dsn)
-
 	DB, err = gorm.Open(
 		postgres.Open(dsn),
 		&gorm.Config{},
@@ -34,6 +32,7 @@ func ConnectDB() {
 	err = DB.AutoMigrate(
 		&models.User{},
 		&models.Post{},
+		&models.Like{},
 	)
 
 	if err != nil {
