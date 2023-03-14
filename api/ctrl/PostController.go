@@ -26,6 +26,7 @@ func AddPost(context *gin.Context) {
 	}
 
 	newPost := models.Post{
+		UserID: json.UserID,
 		Header: json.Header,
 		Body:   json.Body,
 	}
@@ -58,7 +59,7 @@ func DeletePostByID(context *gin.Context) {
 	context.JSON(200, "Successfully deleted the post!")
 }
 
-func GetPostByID(context *gin.Context) {
+func GetByPostID(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
 
 	if err != nil {
@@ -77,6 +78,27 @@ func GetPostByID(context *gin.Context) {
 	}
 
 	context.JSON(200, post)
+}
+
+func GetByUserID(context *gin.Context) {
+	id, err := strconv.Atoi(context.Param("id"))
+
+	if err != nil {
+		utils.SendMessageWithStatus(context, "Invalid ID format", 400)
+		return
+	}
+
+	posts := []models.Post{}
+	query := models.Post{UserID: id}
+
+	err = db.DB.Find(&posts, &query).Error
+
+	if err == gorm.ErrRecordNotFound {
+		utils.SendMessageWithStatus(context, "Post is not found", 404)
+		return
+	}
+
+	context.JSON(200, posts)
 }
 
 //func UpdatePostByID(context *gin.Context) {

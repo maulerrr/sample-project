@@ -19,8 +19,8 @@ func InitRoutes(app *gin.Engine) {
 	postRouter := router.Group("/post")
 	postRouter.GET("/", middlewares.AuthMiddleware(), ctrl.GetAllPosts)
 	postRouter.POST("/", middlewares.AuthMiddleware(), ctrl.AddPost)
-	postRouter.GET("/:id", middlewares.AuthMiddleware(), ctrl.GetPostByID)
-	postRouter.DELETE("/:id", middlewares.AuthMiddleware(), ctrl.DeletePostByID)
+	postRouter.GET("/:id", middlewares.AuthMiddleware(), ctrl.GetByPostID)
+	postRouter.DELETE("/:user_id/:id", middlewares.AccessMiddleware(), ctrl.DeletePostByID)
 	//postRouter.PUT("/update/:id", middlewares.AuthMiddleware(), ctrl.UpdatePostByID)
 
 	postRouter.POST("/like", middlewares.AuthMiddleware(), ctrl.AddLike)
