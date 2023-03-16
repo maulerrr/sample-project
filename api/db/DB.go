@@ -34,6 +34,7 @@ func ConnectDB() {
 		&models.User{},
 		&models.Post{},
 		&models.Like{},
+		&models.Comment{},
 	)
 
 	if err != nil {

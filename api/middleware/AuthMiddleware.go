@@ -106,7 +106,7 @@ func AccessMiddleware() gin.HandlerFunc {
 		user, err := parseToken(token)
 
 		if user.ID != post.UserID {
-			utils.SendMessageWithStatus(context, "U are not allowed to delete someone's posts!", 403)
+			utils.SendMessageWithStatus(context, "U are not allowed to delete someone's things!", 403)
 			context.Abort()
 			return
 		}

@@ -17,16 +17,16 @@ type Response struct {
 }
 
 func AddLike(context *gin.Context) {
-	requestJSON := new(dto.AddLike)
+	json := new(dto.AddLike)
 
-	if err := context.BindJSON(requestJSON); err != nil {
+	if err := context.BindJSON(json); err != nil {
 		utils.SendMessageWithStatus(context, "Invalid JSON", 400)
 		return
 	}
 
 	newLike := models.Like{
-		UserID: requestJSON.UserID,
-		PostID: requestJSON.PostID,
+		UserID: json.UserID,
+		PostID: json.PostID,
 	}
 
 	found := models.Like{}

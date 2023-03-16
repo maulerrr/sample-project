@@ -46,14 +46,23 @@ func DeletePostByID(context *gin.Context) {
 
 	post, query := models.Post{}, models.Post{PostID: id}
 
+	comments := models.Comment{}
+	likes := models.Like{}
+	DeleteCommentsQuery := models.Comment{PostID: id}
+	DeleteLikesQuery := models.Like{PostID: id}
+
 	err = db.DB.First(&post, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		utils.SendMessageWithStatus(context, "Couldn't delete! Post is not found", 404)
+		db.DB.Model(&comments).Delete(&comments, &DeleteCommentsQuery)
+		db.DB.Model(&likes).Delete(&likes, &DeleteLikesQuery)
 		return
 	}
 
 	db.DB.Model(&post).Association("posts").Delete()
+	db.DB.Model(&comments).Delete(&comments, &DeleteCommentsQuery)
+	db.DB.Model(&likes).Delete(&likes, &DeleteLikesQuery)
 	db.DB.Delete(&post)
 
 	context.JSON(200, "Successfully deleted the post!")
@@ -68,12 +77,20 @@ func GetByPostID(context *gin.Context) {
 	}
 
 	post := models.Post{}
-	query := models.Post{PostID: id}
+	SearchPostQuery := models.Post{PostID: id}
 
-	err = db.DB.First(&post, &query).Error
+	//to refresh DB, truncate all unnecessary things after unchecked deletion
+	comments := models.Comment{}
+	likes := models.Like{}
+	DeleteCommentsQuery := models.Comment{PostID: id}
+	DeleteLikesQuery := models.Like{PostID: id}
+
+	err = db.DB.First(&post, &SearchPostQuery).Error
 
 	if err == gorm.ErrRecordNotFound {
 		utils.SendMessageWithStatus(context, "Post is not found", 404)
+		db.DB.Model(&comments).Delete(&comments, &DeleteCommentsQuery)
+		db.DB.Model(&likes).Delete(&likes, &DeleteLikesQuery)
 		return
 	}
 

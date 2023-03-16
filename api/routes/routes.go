@@ -7,7 +7,6 @@ import (
 )
 
 func InitRoutes(app *gin.Engine) {
-
 	router := app.Group("api/v1")
 
 	router.GET("/healthcheck")
@@ -24,4 +23,9 @@ func InitRoutes(app *gin.Engine) {
 	//postRouter.PUT("/update/:id", middlewares.AuthMiddleware(), ctrl.UpdatePostByID)
 
 	postRouter.POST("/like", middlewares.AuthMiddleware(), ctrl.AddLike)
+
+	commentRouter := router.Group("/comment")
+	commentRouter.GET("/:post_id", middlewares.AuthMiddleware(), ctrl.GetAllComments)
+	commentRouter.POST("/", middlewares.AuthMiddleware(), ctrl.CreateComment)
+	commentRouter.DELETE("/:user_id/:id", middlewares.AccessMiddleware(), ctrl.DeleteComment)
 }
