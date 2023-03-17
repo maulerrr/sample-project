@@ -8,12 +8,18 @@ import (
 	"github.com/maulerrr/sample-project/api/utils"
 	"gorm.io/gorm"
 	"log"
+	"strconv"
 )
 
 type Response struct {
 	Data    models.Like `json:"data"`
 	Message string      `json:"message"`
 	Liked   bool        `json:"liked"`
+}
+
+type GetLikeResponse struct {
+	Status int  `json:"status"`
+	Liked  bool `json:"liked"`
 }
 
 func AddLike(context *gin.Context) {
@@ -56,4 +62,34 @@ func AddLike(context *gin.Context) {
 	log.Print(response)
 
 	context.JSON(200, response)
+}
+
+func GetLike(context *gin.Context) {
+	UserID, err := strconv.Atoi(context.Param("user_id"))
+
+	if err != nil {
+		utils.SendMessageWithStatus(context, "Invalid ID format", 400)
+		return
+	}
+
+	PostID, err := strconv.Atoi(context.Param("id"))
+
+	if err != nil {
+		utils.SendMessageWithStatus(context, "Invalid ID format", 400)
+		return
+	}
+
+	found := models.Like{}
+	query := models.Like{
+		PostID: PostID,
+		UserID: UserID,
+	}
+	dbErr := db.DB.First(&found, &query).Error
+
+	if dbErr == gorm.ErrRecordNotFound {
+		context.JSON(404, GetLikeResponse{Status: 404, Liked: false})
+		return
+	}
+
+	context.JSON(200, GetLikeResponse{Status: 200, Liked: true})
 }
