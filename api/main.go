@@ -11,6 +11,7 @@ import (
 
 func main() {
 	app := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
