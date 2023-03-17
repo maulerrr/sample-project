@@ -93,3 +93,17 @@ func GetLike(context *gin.Context) {
 
 	context.JSON(200, GetLikeResponse{Status: 200, Liked: true})
 }
+
+func GetLikesCountOnPost(context *gin.Context) {
+	id, err := strconv.Atoi(context.Param("id"))
+
+	if err != nil {
+		utils.SendMessageWithStatus(context, "Invalid ID format", 400)
+		return
+	}
+
+	var count int
+	db.DB.Raw(`SELECT COUNT(post_id) FROM likes WHERE post_id=?`, id).Scan(&count)
+
+	context.JSON(200, count)
+}

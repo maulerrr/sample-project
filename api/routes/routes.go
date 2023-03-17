@@ -24,6 +24,7 @@ func InitRoutes(app *gin.Engine) {
 
 	postRouter.POST("/like", middlewares.AuthMiddleware(), ctrl.AddLike)
 	postRouter.GET("/like/:user_id/:id", middlewares.AuthMiddleware(), ctrl.GetLike)
+	postRouter.GET("/like/count/:id", middlewares.AuthMiddleware(), ctrl.GetLikesCountOnPost)
 
 	commentRouter := router.Group("/comment")
 	commentRouter.GET("/:post_id", middlewares.AuthMiddleware(), ctrl.GetAllComments)

@@ -107,7 +107,7 @@ func GetByCommentIDAndUserID(context *gin.Context) models.Comment {
 	err = db.DB.First(&comment, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "That user does not have such comment", 404)
+		//utils.SendMessageWithStatus(context, "That user does not have such comment", 404)
 		context.Abort()
 	}
 
@@ -132,7 +132,7 @@ func GetByPostIDAndUserID(context *gin.Context) models.Post {
 	err = db.DB.First(&post, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "That user does not have such post", 404)
+		//utils.SendMessageWithStatus(context, "That user does not have such post", 404)
 		context.Abort()
 	}
 
