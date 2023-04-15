@@ -94,11 +94,11 @@ func FindCommentByWords(context *gin.Context) {
 		return
 	}
 
-	found := models.Comment{}
+	found := []models.Comment{}
 
-	err := db.DB.Where("text LIKE ?", "%"+json.Text+"%").First(&found).Error
+	db.DB.Where("text LIKE ?", "%"+json.Text+"%").Find(&found)
 
-	if err == gorm.ErrRecordNotFound {
+	if len(found) == 0 {
 		utils.SendMessageWithStatus(context, "Comment with such keywords was not found", 404)
 		return
 	}
@@ -117,7 +117,12 @@ func FindAllCommentsByUserID(context *gin.Context) {
 	comments := []models.Comment{}
 	query := models.Comment{UserID: id}
 
-	db.DB.Find(&comments, &query)
+	err = db.DB.Find(&comments, &query).Error
+
+	if len(comments) == 0 {
+		utils.SendMessageWithStatus(context, "User does not have comments", 404)
+		return
+	}
 
 	context.JSON(200, comments)
 }

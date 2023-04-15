@@ -5,14 +5,15 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"os"
 )
 
 var DB *gorm.DB
 
 func ConnectDB() {
 	var err error
-	dsn := os.Getenv("DATABASE_DSN")
+	//dsn := os.Getenv("DATABASE_DSN")
+	dsn := "postgres://postgres:1111@localhost:5432/sample?sslmode=disable"
+
 	log.Print(dsn)
 
 	DB, err = gorm.Open(

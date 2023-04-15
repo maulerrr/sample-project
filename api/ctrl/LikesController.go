@@ -7,7 +7,6 @@ import (
 	"github.com/maulerrr/sample-project/api/models"
 	"github.com/maulerrr/sample-project/api/utils"
 	"gorm.io/gorm"
-	"log"
 	"strconv"
 )
 
@@ -59,8 +58,6 @@ func AddLike(context *gin.Context) {
 		Liked:   true,
 	}
 
-	log.Print(response)
-
 	context.JSON(200, response)
 }
 
@@ -99,6 +96,14 @@ func GetLikesCountOnPost(context *gin.Context) {
 
 	if err != nil {
 		utils.SendMessageWithStatus(context, "Invalid ID format", 400)
+		return
+	}
+
+	post := models.Post{}
+	err = db.DB.First(&post, id).Error
+
+	if err == gorm.ErrRecordNotFound {
+		utils.SendMessageWithStatus(context, "Post not found", 404)
 		return
 	}
 

@@ -97,7 +97,7 @@ func GetByPostID(context *gin.Context) {
 	context.JSON(200, post)
 }
 
-func GetByUserID(context *gin.Context) {
+func GetAllByUserID(context *gin.Context) {
 	id, err := strconv.Atoi(context.Param("id"))
 
 	if err != nil {
@@ -110,8 +110,8 @@ func GetByUserID(context *gin.Context) {
 
 	err = db.DB.Find(&posts, &query).Error
 
-	if err == gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "Post is not found", 404)
+	if len(posts) == 0 {
+		utils.SendMessageWithStatus(context, "No post found", 404)
 		return
 	}
 

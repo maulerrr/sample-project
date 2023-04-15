@@ -1,67 +1,206 @@
 package testing
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/maulerrr/sample-project/api/ctrl"
+	"github.com/maulerrr/sample-project/api/db"
+	"github.com/maulerrr/sample-project/api/dto"
 	"github.com/maulerrr/sample-project/api/models"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
 func TestLogin(t *testing.T) {
-	type args struct {
-		context *gin.Context
+	db.ConnectDB()
+
+	type response struct {
+		Code    int         `json:"code"`
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
 	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
+
+	type testcase struct {
+		name     string
+		payload  interface{}
+		expected response
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctrl.Login(tt.args.context)
+
+	testcases := []testcase{
+		{
+			name:    "Test: Success",
+			payload: dto.Login{Email: "test@mail.ru", Password: "test"},
+			expected: response{
+				Code:    200,
+				Message: "success",
+				Data: models.TokenResponse{
+					UserID:   2,
+					Username: "test",
+					Email:    "test@mail.ru",
+				},
+			},
+		},
+		{
+			name:    "Test: User does not exist",
+			payload: dto.Login{Email: "random@random.ru", Password: "random"},
+			expected: response{
+				Code:    404,
+				Message: "User not found",
+			},
+		},
+		{
+			name: "Test: Invalid JSON",
+			expected: response{
+				Code:    400,
+				Message: "Invalid JSON",
+			},
+		},
+		{
+			name:    "Test: Incorrect Password",
+			payload: dto.Login{Email: "test@mail.ru", Password: "123456"},
+			expected: response{
+				Code:    401,
+				Message: "Password is not correct",
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			loginJSON, _ := json.Marshal(tc.payload)
+			recorder := httptest.NewRecorder()
+			context, _ := gin.CreateTestContext(recorder)
+
+			request := httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(loginJSON))
+			if tc.payload == nil {
+				request = httptest.NewRequest(http.MethodPost, "/auth/signup", nil)
+			}
+
+			context.Request = request
+
+			ctrl.Login(context)
+
+			if recorder.Code != tc.expected.Code {
+				t.Errorf("Expected status code %d but got %d", tc.expected.Code, recorder.Code)
+			}
+
+			var response response
+			if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
+				t.Errorf("Error unmarshalling response body: %v", err)
+			}
+
+			if reflect.ValueOf(response.Data).Kind() == reflect.Map {
+				dataMap := response.Data
+				dataStruct := models.TokenResponse{}
+
+				jsonData, _ := json.Marshal(dataMap)
+				json.Unmarshal(jsonData, &dataStruct)
+
+				dataStruct.Token = ""
+				response.Data = dataStruct
+			}
+
+			if !reflect.DeepEqual(response, tc.expected) {
+				t.Errorf("Expected response %v but got %v", tc.expected, response)
+			}
 		})
 	}
 }
 
 func TestSignUp(t *testing.T) {
-	type args struct {
-		context *gin.Context
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ctrl.SignUp(tt.args.context)
-		})
-	}
-}
+	db.ConnectDB()
 
-func Test_generateToken(t *testing.T) {
-	type args struct {
-		user models.User
+	type response struct {
+		Code    int         `json:"code"`
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
 	}
-	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
-	}{
-		// TODO: Add test cases.
+
+	type testcase struct {
+		name     string
+		payload  interface{}
+		expected response
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := ctrl.generateToken(tt.args.user)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("generateToken() error = %v, wantErr %v", err, tt.wantErr)
-				return
+
+	testcases := []testcase{
+		{
+			name:    "Test: Success",
+			payload: dto.Registration{Username: "test20", Email: "test20@mail.ru", Password: "test"},
+			expected: response{
+				Code:    200,
+				Message: "success",
+				Data: models.TokenResponse{
+					UserID:   20,
+					Username: "test20",
+					Email:    "test20@mail.ru",
+				},
+			},
+		},
+		{
+			name:    "Test: User already exist",
+			payload: dto.Registration{Username: "test", Email: "test@mail.ru", Password: "test"},
+			expected: response{
+				Code:    400,
+				Message: "User already exists",
+			},
+		},
+		{
+			name: "Test: Invalid JSON",
+			expected: response{
+				Code:    400,
+				Message: "Invalid JSON",
+			},
+		},
+		{
+			name:    "Test: Invalid Email Address",
+			payload: dto.Registration{Username: "test2", Email: "test2", Password: "test"},
+			expected: response{
+				Code:    400,
+				Message: "Invalid Email Address",
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			loginJSON, _ := json.Marshal(tc.payload)
+			recorder := httptest.NewRecorder()
+			context, _ := gin.CreateTestContext(recorder)
+
+			request := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBuffer(loginJSON))
+			if tc.payload == nil {
+				request = httptest.NewRequest(http.MethodPost, "/auth/signup", nil)
 			}
-			if got != tt.want {
-				t.Errorf("generateToken() got = %v, want %v", got, tt.want)
+
+			context.Request = request
+
+			ctrl.SignUp(context)
+
+			if recorder.Code != tc.expected.Code {
+				t.Errorf("Expected status code %d but got %d", tc.expected.Code, recorder.Code)
+			}
+
+			var response response
+			if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
+				t.Errorf("Error unmarshalling response body: %v", err)
+			}
+
+			if reflect.ValueOf(response.Data).Kind() == reflect.Map {
+				dataMap := response.Data
+				dataStruct := models.TokenResponse{}
+
+				jsonData, _ := json.Marshal(dataMap)
+				json.Unmarshal(jsonData, &dataStruct)
+
+				dataStruct.Token = ""
+				response.Data = dataStruct
+			}
+
+			if !reflect.DeepEqual(response, tc.expected) {
+				t.Errorf("Expected response %v but got %v", tc.expected, response)
 			}
 		})
 	}

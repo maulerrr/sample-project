@@ -15,6 +15,7 @@ import (
 
 func Login(context *gin.Context) {
 	credentials := new(dto.Login)
+
 	if err := context.BindJSON(credentials); err != nil {
 		utils.SendMessageWithStatus(context, "Invalid JSON", 400)
 		return
@@ -30,11 +31,11 @@ func Login(context *gin.Context) {
 	}
 
 	if !utils.ComparePasswords(user.Password, credentials.Password) {
-		utils.SendMessageWithStatus(context, "Passwords does not match", 403)
+		utils.SendMessageWithStatus(context, "Password is not correct", 401)
 		return
 	}
 
-	tokenString, err := generateToken(user)
+	tokenString, err := GenerateToken(user)
 
 	if err != nil {
 		utils.SendMessageWithStatus(context, "Auth error (token creation)", 500)
@@ -59,6 +60,11 @@ func SignUp(context *gin.Context) {
 		return
 	}
 
+	if len(json.Password) < 4 {
+		utils.SendMessageWithStatus(context, "Minimum password length is 4", 400)
+		return
+	}
+
 	password := utils.HashPassword([]byte(json.Password))
 	err := checkmail.ValidateFormat(json.Email)
 	if err != nil {
@@ -77,7 +83,7 @@ func SignUp(context *gin.Context) {
 	query := models.User{Email: json.Email}
 	err = db.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "User already exists", 404)
+		utils.SendMessageWithStatus(context, "User already exists", 400)
 		return
 	}
 
@@ -87,7 +93,7 @@ func SignUp(context *gin.Context) {
 		return
 	}
 
-	tokenString, err := generateToken(newUser)
+	tokenString, err := GenerateToken(newUser)
 
 	if err != nil {
 		utils.SendMessageWithStatus(context, "Auth error (token creation)", 500)
@@ -104,7 +110,7 @@ func SignUp(context *gin.Context) {
 	utils.SendSuccessJSON(context, response)
 }
 
-func generateToken(user models.User) (string, error) {
+func GenerateToken(user models.User) (string, error) {
 	expirationTime := time.Now().Add(time.Hour * 24)
 
 	claims := &models.Claims{
