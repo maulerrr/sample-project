@@ -36,14 +36,14 @@ func AuthMiddleware() gin.HandlerFunc {
 		authHeader := context.GetHeader("Authorization")
 
 		if authHeader == "" {
-			utils.SendMessageWithStatus(context, "Authorize!", 404)
+			utils.SendMessageWithStatus(context, "Authorize!", 401)
 			context.Abort()
 			return
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			utils.SendMessageWithStatus(context, "Incorrect authorization header", 403)
+			utils.SendMessageWithStatus(context, "Incorrect authorization header", 400)
 			context.Abort()
 			return
 		}
@@ -64,7 +64,7 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 			}
 
-			utils.SendMessageWithStatus(context, err.Error(), 404)
+			utils.SendMessageWithStatus(context, err.Error(), 401)
 			context.Abort()
 			return
 		}

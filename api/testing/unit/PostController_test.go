@@ -1,9 +1,10 @@
-package testing
+package unit
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/maulerrr/sample-project/api/db"
+	testing2 "github.com/maulerrr/sample-project/api/testing"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -29,25 +30,25 @@ func TestGetAllPosts(t *testing.T) {
 func TestAddPost1(t *testing.T) {
 	db.ConnectDB()
 
-	testcases := []testcase{
+	testcases := []testing2.Testcase{
 		{
-			name: "Test: Success",
-			payload: dto.CreatePost{
+			Name: "Test: Success",
+			Payload: dto.CreatePost{
 				UserID: 2,
 				Header: "New Test",
 				Body:   "Body",
 			},
-			expectedCode: 200,
-			expectedData: nil,
+			ExpectedCode: 200,
+			ExpectedData: nil,
 		},
 		{
-			name:         "Test: Invalid JSON",
-			expectedCode: 400,
-			expectedData: gin.H{"code": 400, "message": "Invalid JSON"},
+			Name:         "Test: Invalid JSON",
+			ExpectedCode: 400,
+			ExpectedData: gin.H{"code": 400, "message": "Invalid JSON"},
 		},
 	}
 
-	TestRun(testcases, ctrl.AddPost, http.MethodPost, true, t)
+	testing2.TestRun(testcases, ctrl.AddPost, http.MethodPost, true, t)
 }
 
 func TestAddPost(t *testing.T) {

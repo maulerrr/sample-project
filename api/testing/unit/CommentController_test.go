@@ -1,4 +1,4 @@
-package testing
+package unit
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"github.com/maulerrr/sample-project/api/db"
 	"github.com/maulerrr/sample-project/api/dto"
 	"github.com/maulerrr/sample-project/api/models"
+	testing2 "github.com/maulerrr/sample-project/api/testing"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"net/http"
@@ -103,7 +104,10 @@ func TestCreateComment(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			commentJSON, _ := json.Marshal(tc.payload)
 
-			request, _ := http.NewRequest(http.MethodPost, "/comment", bytes.NewBuffer(commentJSON))
+			request := httptest.NewRequest(http.MethodPost, "/comment", bytes.NewBuffer(commentJSON))
+			if tc.payload.UserID == 0 && tc.payload.PostID == 0 && tc.payload.Text == "" {
+				request = httptest.NewRequest(http.MethodPost, "/comment", nil)
+			}
 			request.Header.Set("Content-Type", "application/json")
 			context, _ := gin.CreateTestContext(httptest.NewRecorder())
 			context.Request = request
@@ -256,26 +260,25 @@ func TestFindCommentByWords(t *testing.T) {
 	}
 }
 
-// with generic test
 func TestFindComment1(t *testing.T) {
 	db.ConnectDB()
 
-	testcases := []testcase{
+	testcases := []testing2.Testcase{
 		{
-			name:         "Test: Success",
-			payload:      dto.FindByWordsDTO{Text: "Test"},
-			expectedCode: 200,
+			Name:         "Test: Success",
+			Payload:      dto.FindByWordsDTO{Text: "Test"},
+			ExpectedCode: 200,
 		},
 		{
-			name:         "Test: Not Found",
-			payload:      dto.FindByWordsDTO{Text: "there should be no result"},
-			expectedCode: 404,
+			Name:         "Test: Not Found",
+			Payload:      dto.FindByWordsDTO{Text: "there should be no result"},
+			ExpectedCode: 404,
 		},
 		{
-			name:         "Test: Invalid JSON (empty)",
-			expectedCode: 400,
+			Name:         "Test: Invalid JSON (empty)",
+			ExpectedCode: 400,
 		},
 	}
 
-	TestRun(testcases, ctrl.FindCommentByWords, http.MethodGet, false, t)
+	testing2.TestRun(testcases, ctrl.FindCommentByWords, http.MethodGet, false, t)
 }

@@ -17,14 +17,14 @@ func PostDeletionMiddleware() gin.HandlerFunc {
 		post := GetByPostIDAndUserID(context)
 
 		if authHeader == "" {
-			utils.SendMessageWithStatus(context, "Authorize!", 404)
+			utils.SendMessageWithStatus(context, "Authorize!", 401)
 			context.Abort()
 			return
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			utils.SendMessageWithStatus(context, "Incorrect authorization header", 403)
+			utils.SendMessageWithStatus(context, "Incorrect authorization header", 401)
 			context.Abort()
 			return
 		}
@@ -56,14 +56,14 @@ func CommentDeletionMiddleware() gin.HandlerFunc {
 		comment := GetByCommentIDAndUserID(context)
 
 		if authHeader == "" {
-			utils.SendMessageWithStatus(context, "Authorize!", 404)
+			utils.SendMessageWithStatus(context, "Authorize!", 401)
 			context.Abort()
 			return
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			utils.SendMessageWithStatus(context, "Incorrect authorization header", 403)
+			utils.SendMessageWithStatus(context, "Incorrect authorization header", 401)
 			context.Abort()
 			return
 		}

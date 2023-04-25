@@ -9,23 +9,23 @@ import (
 	"testing"
 )
 
-type testcase struct {
-	name         string
-	payload      interface{}
+type Testcase struct {
+	Name         string
+	Payload      interface{}
 	params       gin.Params
-	expectedCode int
-	expectedData interface{}
+	ExpectedCode int
+	ExpectedData interface{}
 }
 
-func TestRun(testcases []testcase, function func(context *gin.Context), method string, withData bool, t *testing.T) {
+func TestRun(testcases []Testcase, function func(context *gin.Context), method string, withData bool, t *testing.T) {
 	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.Name, func(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			context, _ := gin.CreateTestContext(recorder)
 
-			requestJSON, _ := json.Marshal(tc.payload)
+			requestJSON, _ := json.Marshal(tc.Payload)
 			request := httptest.NewRequest(method, "/does-not-matter", bytes.NewBuffer(requestJSON))
-			if tc.payload == nil {
+			if tc.Payload == nil {
 				request = httptest.NewRequest(method, "/does-not-matter", nil)
 			}
 
@@ -34,11 +34,11 @@ func TestRun(testcases []testcase, function func(context *gin.Context), method s
 
 			function(context)
 
-			if recorder.Code != tc.expectedCode {
-				t.Errorf("Expected status code %d but got %d", tc.expectedCode, recorder.Code)
+			if recorder.Code != tc.ExpectedCode {
+				t.Errorf("Expected status code %d but got %d", tc.ExpectedCode, recorder.Code)
 			}
 
-			if !withData || tc.expectedData == nil {
+			if !withData || tc.ExpectedData == nil {
 				return
 			}
 
@@ -57,7 +57,7 @@ func TestRun(testcases []testcase, function func(context *gin.Context), method s
 				response = dataStruct
 			}
 
-			expectedJSON, _ := json.Marshal(tc.expectedData)
+			expectedJSON, _ := json.Marshal(tc.ExpectedData)
 			actualJSON, _ := json.Marshal(response)
 
 			assertJSONResponse(t, expectedJSON, actualJSON)

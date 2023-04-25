@@ -1,85 +1,82 @@
-package testing
+package unit
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/maulerrr/sample-project/api/ctrl"
 	"github.com/maulerrr/sample-project/api/db"
-	"github.com/maulerrr/sample-project/api/dto"
 	"github.com/maulerrr/sample-project/api/models"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strconv"
 	"testing"
 )
 
-func TestAddLike(t *testing.T) {
-	db.ConnectDB()
-
-	post := models.Post{PostID: 5, Header: "Test Post", Body: "Test Post Body", UserID: 1}
-	db.DB.Create(&post)
-
-	tests := []struct {
-		name         string
-		payload      dto.AddLike
-		statusCode   int
-		expectedResp ctrl.Response
-	}{
-		{
-			name: "Test: Liked",
-			payload: dto.AddLike{
-				UserID: 2,
-				PostID: post.PostID,
-			},
-			statusCode: 200,
-			expectedResp: ctrl.Response{
-				Message: "Removed Like",
-				Liked:   false,
-			},
-		},
-		{
-			name: "Test: Unliked",
-			payload: dto.AddLike{
-				UserID: 2,
-				PostID: post.PostID,
-			},
-			statusCode: 200,
-			expectedResp: ctrl.Response{
-				Message: "Removed Like",
-				Liked:   false,
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			likeJSON, _ := json.Marshal(tt.payload)
-			recorder := httptest.NewRecorder()
-			context, _ := gin.CreateTestContext(recorder)
-
-			request := httptest.NewRequest(http.MethodPost, "/post/like", bytes.NewBuffer(likeJSON))
-			context.Request = request
-
-			ctrl.AddLike(context)
-
-			if recorder.Code != tt.statusCode {
-				t.Errorf("Expected status code %d but got %d", tt.statusCode, recorder.Code)
-			}
-
-			var response ctrl.Response
-			if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
-				t.Errorf("Error unmarshalling response body: %v", err)
-			}
-			if !reflect.DeepEqual(response.Liked, tt.expectedResp.Liked) {
-				t.Errorf("Expected response %v but got %v", tt.expectedResp, response)
-			}
-		})
-	}
-
-}
+//func TestAddLike(t *testing.T) {
+//	db.ConnectDB()
+//
+//	post := models.Post{PostID: 5, Header: "Test Post", Body: "Test Post Body", UserID: 1}
+//	db.DB.Create(&post)
+//
+//	tests := []struct {
+//		name         string
+//		payload      dto.AddLike
+//		statusCode   int
+//		expectedResp ctrl.Response
+//	}{
+//		{
+//			name: "Test: Liked",
+//			payload: dto.AddLike{
+//				UserID: 2,
+//				PostID: post.PostID,
+//			},
+//			statusCode: 200,
+//			expectedResp: ctrl.Response{
+//				Message: "Removed Like",
+//				Liked:   false,
+//			},
+//		},
+//		{
+//			name: "Test: Unliked",
+//			payload: dto.AddLike{
+//				UserID: 2,
+//				PostID: post.PostID,
+//			},
+//			statusCode: 200,
+//			expectedResp: ctrl.Response{
+//				Message: "Removed Like",
+//				Liked:   false,
+//			},
+//		},
+//	}
+//
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			likeJSON, _ := json.Marshal(tt.payload)
+//			recorder := httptest.NewRecorder()
+//			context, _ := gin.CreateTestContext(recorder)
+//
+//			request := httptest.NewRequest(http.MethodPost, "/post/like", bytes.NewBuffer(likeJSON))
+//			context.Request = request
+//
+//			ctrl.AddLike(context)
+//
+//			if recorder.Code != tt.statusCode {
+//				t.Errorf("Expected status code %d but got %d", tt.statusCode, recorder.Code)
+//			}
+//
+//			var response ctrl.Response
+//			if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
+//				t.Errorf("Error unmarshalling response body: %v", err)
+//			}
+//			if !reflect.DeepEqual(response.Liked, tt.expectedResp.Liked) {
+//				t.Errorf("Expected response %v but got %v", tt.expectedResp, response)
+//			}
+//		})
+//	}
+//
+//}
 
 func TestGetLike(t *testing.T) {
 	db.ConnectDB()

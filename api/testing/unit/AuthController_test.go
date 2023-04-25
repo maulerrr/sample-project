@@ -1,4 +1,4 @@
-package testing
+package unit
 
 import (
 	"bytes"
@@ -128,14 +128,14 @@ func TestSignUp(t *testing.T) {
 	testcases := []testcase{
 		{
 			name:    "Test: Success",
-			payload: dto.Registration{Username: "test20", Email: "test20@mail.ru", Password: "test"},
+			payload: dto.Registration{Username: "test22", Email: "test22@mail.ru", Password: "test"},
 			expected: response{
 				Code:    200,
 				Message: "success",
 				Data: models.TokenResponse{
-					UserID:   20,
-					Username: "test20",
-					Email:    "test20@mail.ru",
+					UserID:   22,
+					Username: "test22",
+					Email:    "test22@mail.ru",
 				},
 			},
 		},

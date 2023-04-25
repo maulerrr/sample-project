@@ -14,7 +14,7 @@ func ConnectDB() {
 	//dsn := os.Getenv("DATABASE_DSN")
 	dsn := "postgres://postgres:1111@localhost:5432/sample?sslmode=disable"
 
-	log.Print(dsn)
+	//log.Print(dsn)
 
 	DB, err = gorm.Open(
 		postgres.Open(dsn),
@@ -28,8 +28,8 @@ func ConnectDB() {
 		)
 	}
 
-	log.Println("Connected to database!")
-	log.Println("Running migrations")
+	//log.Println("Connected to database!")
+	//log.Println("Running migrations")
 
 	err = DB.AutoMigrate(
 		&models.User{},
@@ -42,5 +42,5 @@ func ConnectDB() {
 		log.Fatal("Failed to connect to migrate! \n", err)
 	}
 
-	log.Println("Migrations done!")
+	//log.Println("Migrations done!")
 }
