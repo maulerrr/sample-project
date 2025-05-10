@@ -1,0 +1,70 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # 1. Static Analysis
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Semgrep
+        run: pip install semgrep
+      - name: Run Semgrep SAST
+        run: semgrep --config=auto --error --json > semgrep-report.json
+      - name: Upload SAST Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: semgrep-report
+          path: semgrep-report.json
+
+  # 2. Build
+  build:
+    needs: [sast]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: |
+          npm ci    # or go mod download
+      - name: Build
+        run: |
+          npm run build  # or go build ./...
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: ./build  # adjust as needed
+
+  # 3. Deployment
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Test Environment
+        run: |
+          # e.g. docker build / push, heroku deploy, etc.
+      - name: Wait for Service
+        run: |
+          # e.g. curl --retry 10 --retry-delay 6 --fail https://my-test-env.example.com
+
+  # 4. Dynamic Analysis
+  dast:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SOOS DAST Scanner
+        run: |
+          curl -L https://example.com/soos-cli | bash
+      - name: Run SOOS DAST Scan
+        run: |
+          soos scan --target https://my-test-env.example.com \
+                    --output-soos-report.json
+      - name: Upload DAST Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: soos-dast-report
+          path: soos-dast-report.json
