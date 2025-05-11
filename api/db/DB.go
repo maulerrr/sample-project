@@ -1,18 +1,20 @@
 package db
 
 import (
+	"log"
+	"os"
+
 	"github.com/maulerrr/sample-project/api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 var DB *gorm.DB
 
 func ConnectDB() {
 	var err error
-	//dsn := os.Getenv("DATABASE_DSN")
-	dsn := "postgres://postgres:1111@localhost:5432/sample?sslmode=disable"
+	dsn := os.Getenv("DATABASE_DSN")
+	// dsn := "postgres://postgres:1111@localhost:5432/sample?sslmode=disable"
 
 	//log.Print(dsn)
 
