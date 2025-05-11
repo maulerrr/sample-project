@@ -43,8 +43,8 @@ jobs:
           project_name: "sample-project"
           scan_mode: "fullscan"
           target_url: "https://www.example.com/"
-          export_format: "Sarif"
-          export_file_type: "Json"
+          # export_format: "Sarif"
+          # export_file_type: "Json"
       # - name: Find and rename SARIF file since it is unique
       #   run: |
       #     file=$(find . -name "*.sarif.json" | head -n 1)
