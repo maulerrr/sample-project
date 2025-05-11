@@ -1,6 +1,10 @@
 package ctrl
 
 import (
+	"fmt"
+	"os"
+	"time"
+
 	"github.com/badoux/checkmail"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -9,8 +13,6 @@ import (
 	"github.com/maulerrr/sample-project/api/models"
 	"github.com/maulerrr/sample-project/api/utils"
 	"gorm.io/gorm"
-	"os"
-	"time"
 )
 
 func Login(context *gin.Context) {
@@ -22,16 +24,18 @@ func Login(context *gin.Context) {
 	}
 
 	user := models.User{}
-	query := models.User{Email: credentials.Email}
-	err := db.DB.First(&user, &query).Error
+
+	// ❌ Vulnerable: Raw SQL query with string concatenation
+	email := credentials.Email
+	password := credentials.Password
+
+	query := fmt.Sprintf("email = '%s' AND password = '%s'", email, password)
+
+	// This directly injects user input into the SQL query
+	err := db.DB.Where(query).First(&user).Error
 
 	if err == gorm.ErrRecordNotFound {
-		utils.SendMessageWithStatus(context, "User not found", 404)
-		return
-	}
-
-	if !utils.ComparePasswords(user.Password, credentials.Password) {
-		utils.SendMessageWithStatus(context, "Password is not correct", 401)
+		utils.SendMessageWithStatus(context, "User not found or password incorrect", 401)
 		return
 	}
 
@@ -51,6 +55,45 @@ func Login(context *gin.Context) {
 
 	utils.SendSuccessJSON(context, response)
 }
+
+// func Login(context *gin.Context) {
+// 	credentials := new(dto.Login)
+
+// 	if err := context.BindJSON(credentials); err != nil {
+// 		utils.SendMessageWithStatus(context, "Invalid JSON", 400)
+// 		return
+// 	}
+
+// 	user := models.User{}
+// 	query := models.User{Email: credentials.Email}
+// 	err := db.DB.First(&user, &query).Error
+
+// 	if err == gorm.ErrRecordNotFound {
+// 		utils.SendMessageWithStatus(context, "User not found", 404)
+// 		return
+// 	}
+
+// 	if !utils.ComparePasswords(user.Password, credentials.Password) {
+// 		utils.SendMessageWithStatus(context, "Password is not correct", 401)
+// 		return
+// 	}
+
+// 	tokenString, err := GenerateToken(user)
+
+// 	if err != nil {
+// 		utils.SendMessageWithStatus(context, "Auth error (token creation)", 500)
+// 		return
+// 	}
+
+// 	response := &models.TokenResponse{
+// 		UserID:   user.UserID,
+// 		Username: user.Username,
+// 		Email:    user.Email,
+// 		Token:    tokenString,
+// 	}
+
+// 	utils.SendSuccessJSON(context, response)
+// }
 
 func SignUp(context *gin.Context) {
 	json := new(dto.Registration)
