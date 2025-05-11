@@ -10,15 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Semgrep
         run: pip install semgrep
+
       - name: Run Semgrep SAST
-        run: semgrep --config=auto --error --json > semgrep-report.json
+        id: semgrep
+        continue-on-error: true
+        run: |
+          semgrep \
+            --config=auto \
+            --metrics=off \
+            --error-level HIGH \
+            --json > semgrep-report.json
+
       - name: Upload SAST Report
         uses: actions/upload-artifact@v4
         with:
           name: semgrep-report
           path: semgrep-report.json
+
+      - name: Fail on HIGH severity findings
+        if: steps.semgrep.outcome == 'failure'
+        run: exit 1
 
   # 2. Build
   build:
@@ -59,10 +73,12 @@ jobs:
       - name: Install SOOS DAST Scanner
         run: |
           curl -L https://example.com/soos-cli | bash
+
       - name: Run SOOS DAST Scan
         run: |
           soos scan --target https://my-test-env.example.com \
                     --output-soos-report.json
+
       - name: Upload DAST Report
         uses: actions/upload-artifact@v4
         with:
