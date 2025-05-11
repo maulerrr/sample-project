@@ -40,8 +40,8 @@ jobs:
         with:
           client_id: ${{ secrets.SOOS_CLIENT_ID }}
           api_key: ${{ secrets.SOOS_API_KEY }}
-          project_name: "<YOUR-PROJECT-NAME>"
-          scan_mode: "baseline"
+          project_name: "sample-project"
+          scan_mode: "fullscan"
           target_url: "https://www.example.com/"
           export_format: "Sarif"
           export_file_type: "Json"
