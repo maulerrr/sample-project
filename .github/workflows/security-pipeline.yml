@@ -15,7 +15,7 @@ jobs:
       - name: Run Semgrep SAST
         run: semgrep --config=auto --error --json > semgrep-report.json
       - name: Upload SAST Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: semgrep-report
           path: semgrep-report.json
@@ -33,10 +33,10 @@ jobs:
         run: |
           npm run build  # or go build ./...
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: ./build  # adjust as needed
+          path: ./build
 
   # 3. Deployment
   deploy:
@@ -64,7 +64,7 @@ jobs:
           soos scan --target https://my-test-env.example.com \
                     --output-soos-report.json
       - name: Upload DAST Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: soos-dast-report
           path: soos-dast-report.json
